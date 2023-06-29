@@ -1,16 +1,34 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
+import { Navigate } from "react-router-dom";
+import { UserContext } from "../hooks/userContext";
 
 const LoginPage = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [redirect, setRedirect] = useState(false);
+  const { setUserInfo } = useContext(UserContext);
   const login = async (e) => {
     e.preventDefault();
-    await fetch("http://localhost:4000/login", {
+    const response = await fetch("http://localhost:4000/login", {
       method: "POST",
       body: JSON.stringify({ username, password }),
       headers: { "Content-type": "application/json" },
+      credentials: "include",
     });
+    if (response.ok) {
+      response.json().then((data) => {
+        setUserInfo(data);
+        setRedirect(true);
+      });
+    } else {
+      alert("wrong credentials");
+    }
   };
+
+  if (redirect) {
+    return <Navigate to="/" />;
+  }
+
   return (
     <div className="w-[100%]">
       <form className="my-0 mx-auto max-w-[500px]" onSubmit={login}>
