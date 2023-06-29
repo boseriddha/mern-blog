@@ -26,10 +26,10 @@ const Header = () => {
 
   return (
     <header className="flex justify-between items-center text-inherit mb-[50px] mt-5">
-      <Link to="/" className="font-bold text-2xl">
+      <Link to="/" className="font-bold lg:text-2xl md:text-xl sm:text-lg">
         MyBlog
       </Link>
-      <nav className="flex gap-[20px]">
+      <nav className="flex gap-[20px] sm:text-xs md:text-base lg:text-base">
         {username !== undefined ? (
           <>
             <Link to="/create">Create New Post</Link>

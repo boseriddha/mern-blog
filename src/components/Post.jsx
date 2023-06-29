@@ -1,8 +1,12 @@
 import { format } from "date-fns";
+import { Link } from "react-router-dom";
 
 const Post = ({ title, summary, cover, content, createdAt, author }) => {
   return (
-    <div className="post grid grid-cols-[.9fr_1.1fr] gap-[20px] mb-7">
+    <Link
+      to="/post/id"
+      className="post grid lg:grid-cols-[.9fr_1.1fr] lg:gap-[20px] mb-7"
+    >
       <div className="flex justify-center items-center">
         <img
           src={`http://localhost:4000/${cover}`}
@@ -20,7 +24,7 @@ const Post = ({ title, summary, cover, content, createdAt, author }) => {
         </p>
         <p className="">{summary}</p>
       </div>
-    </div>
+    </Link>
   );
 };
 
