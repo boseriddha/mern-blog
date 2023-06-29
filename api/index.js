@@ -17,6 +17,7 @@ const uploadMiddleware = multer({ dest: "uploads/" });
 app.use(cors({ credentials: true, origin: "http://localhost:3000" }));
 app.use(express.json());
 app.use(cookieParser());
+app.use("/uploads", express.static(`${__dirname}/uploads`));
 
 mongoose.connect(
   "mongodb+srv://blog:ik01cO3qlF4v0gCf@cluster0.xqxamrz.mongodb.net/?retryWrites=true&w=majority"
@@ -75,15 +76,25 @@ app.post("/post", uploadMiddleware.single("file"), async (req, res) => {
   const newPath = path + "." + ext;
   fs.renameSync(path, newPath);
 
-  const { title, summary, content } = req.body;
-  const postDoc = await Post.create({
-    title,
-    summary,
-    content,
-    cover: newPath,
-  });
+  const { token } = req.cookies;
 
-  res.json(postDoc);
+  jwt.verify(token, secret, {}, async (err, info) => {
+    if (err) throw err;
+    const { title, summary, content } = req.body;
+    const postDoc = await Post.create({
+      title,
+      summary,
+      content,
+      cover: newPath,
+      author: { username: info.username, authorId: info.id },
+    });
+    res.json(postDoc);
+  });
+});
+
+app.get("/post", async (req, res) => {
+  const posts = await Post.find().sort({ createdAt: -1 }).limit(20);
+  res.json(posts);
 });
 
 app.listen(4000);

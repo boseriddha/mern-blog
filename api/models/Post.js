@@ -7,6 +7,10 @@ const PostSchema = new Schema(
     summary: String,
     content: String,
     cover: String,
+    author: {
+      username: String,
+      authorId: { type: Schema.Types.ObjectId },
+    },
   },
   {
     timestamps: true,
