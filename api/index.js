@@ -2,13 +2,17 @@ const express = require("express");
 const cors = require("cors");
 const { default: mongoose } = require("mongoose");
 const User = require("./models/User");
+const Post = require("./models/Post");
 const app = express();
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const cookieParser = require("cookie-parser");
+const multer = require("multer");
+const fs = require("fs");
 
 const salt = bcrypt.genSaltSync();
 const secret = "asdfaklsdjfasdincvasdlkjfhbvasdfkjasdfasdfoiegjhskdbfalsjkdfh";
+const uploadMiddleware = multer({ dest: "uploads/" });
 
 app.use(cors({ credentials: true, origin: "http://localhost:3000" }));
 app.use(express.json());
@@ -33,11 +37,11 @@ app.post("/register", async (req, res) => {
 
 app.post("/login", async (req, res) => {
   const { username, password } = req.body;
-  console.log(req.body);
+  //   console.log(req.body);
   const userDoc = await User.findOne({ username });
-  console.log(userDoc);
+  //   console.log(userDoc);
   const passOk = bcrypt.compareSync(password, userDoc.password);
-  console.log(passOk);
+  //   console.log(passOk);
   if (passOk) {
     // logged in
     jwt.sign({ username, id: userDoc._id }, secret, {}, (err, token) => {
@@ -63,6 +67,23 @@ app.get("/profile", (req, res) => {
 
 app.post("/logout", (req, res) => {
   res.cookie("token", "").json("ok");
+});
+
+app.post("/post", uploadMiddleware.single("file"), async (req, res) => {
+  const { originalname, path } = req.file;
+  const ext = originalname.split(".").pop();
+  const newPath = path + "." + ext;
+  fs.renameSync(path, newPath);
+
+  const { title, summary, content } = req.body;
+  const postDoc = await Post.create({
+    title,
+    summary,
+    content,
+    cover: newPath,
+  });
+
+  res.json(postDoc);
 });
 
 app.listen(4000);
