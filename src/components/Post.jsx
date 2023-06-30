@@ -1,17 +1,17 @@
 import { format } from "date-fns";
 import { Link } from "react-router-dom";
 
-const Post = ({ title, summary, cover, content, createdAt, author }) => {
+const Post = ({ title, summary, cover, createdAt, author, postId }) => {
   return (
     <Link
-      to="/post/id"
-      className="post grid lg:grid-cols-[.9fr_1.1fr] lg:gap-[20px] mb-7"
+      to={`/post/${author.username}/${postId}`}
+      className="post grid lg:grid-cols-[.9fr_1.1fr] lg:gap-[20px] lg:mb-7 lg:p-0 mb-5 p-5"
     >
       <div className="flex justify-center items-center">
         <img
           src={`http://localhost:4000/${cover}`}
           alt="cover image"
-          className="max-w-[100%]"
+          className="max-w-[100%] md:mb-5 lg:mb-2 sm:mb-5 mb-5 rounded"
         />
       </div>
       <div className="text">
