@@ -1,3 +1,4 @@
+const uri = require("mongoUri");
 const express = require("express");
 const cors = require("cors");
 const { default: mongoose } = require("mongoose");
@@ -20,9 +21,7 @@ app.use(express.json());
 app.use(cookieParser());
 app.use("/uploads", express.static(`${__dirname}/uploads`));
 
-mongoose.connect(
-  "mongodb+srv://blog:ik01cO3qlF4v0gCf@cluster0.xqxamrz.mongodb.net/?retryWrites=true&w=majority"
-);
+mongoose.connect(uri);
 
 app.post("/register", async (req, res) => {
   const { username, password } = req.body;
