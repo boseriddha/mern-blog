@@ -11,6 +11,7 @@ const PostSchema = new Schema(
       username: String,
       authorId: { type: Schema.Types.ObjectId },
     },
+    postId: String,
   },
   {
     timestamps: true,

@@ -9,6 +9,7 @@ const jwt = require("jsonwebtoken");
 const cookieParser = require("cookie-parser");
 const multer = require("multer");
 const fs = require("fs");
+const { v4: uuidv4 } = require("uuid");
 
 const salt = bcrypt.genSaltSync();
 const secret = "asdfaklsdjfasdincvasdlkjfhbvasdfkjasdfasdfoiegjhskdbfalsjkdfh";
@@ -87,14 +88,52 @@ app.post("/post", uploadMiddleware.single("file"), async (req, res) => {
       content,
       cover: newPath,
       author: { username: info.username, authorId: info.id },
+      postId: uuidv4(),
     });
     res.json(postDoc);
+  });
+});
+
+app.put("/post", uploadMiddleware.single("file"), async (req, res) => {
+  let newPath = null;
+  if (req.file) {
+    const { originalname, path } = req.file;
+    const ext = originalname.split(".").pop();
+    const newPath = path + "." + ext;
+    fs.renameSync(path, newPath);
+  }
+
+  const { token } = req.cookies;
+
+  jwt.verify(token, secret, {}, async (err, info) => {
+    if (err) throw err;
+    const { title, summary, content, postId } = req.body;
+    const postDoc = await Post.findOne({ postId: postId });
+    const isAuthor =
+      JSON.stringify(info.id) === JSON.stringify(postDoc.author.authorId);
+    if (!isAuthor) {
+      res.status(400).json("you are not the author!");
+      throw "you are not the author!";
+    }
+    const response = await postDoc.updateOne({
+      title,
+      summary,
+      content,
+      cover: newPath ? newPath : postDoc.cover,
+    });
+    res.json({ response });
   });
 });
 
 app.get("/post", async (req, res) => {
   const posts = await Post.find().sort({ createdAt: -1 }).limit(20);
   res.json(posts);
+});
+
+app.get("/post/:author/:id", async (req, res) => {
+  const { id } = req.params;
+  const postDoc = await Post.findOne({ postId: id });
+  res.json(postDoc);
 });
 
 app.listen(4000);
